@@ -1,0 +1,34 @@
+{
+    "apikey": "t7b3l4sglhgjj07afd1mo",
+    "data": {
+      "key": {
+        "fromMe": false,
+        "id": "3E006913CF08F3468CDA71B555659371",
+        "remoteJid": "31992188258@s.whatsapp.net"
+      },
+      "message": {
+        "conversation": "Teste de mensagem",
+        "messageContextInfo": {
+          "deviceListMetadata": {
+            "recipientKeyHash": "xQWkkiLSFrRV+w==",
+            "recipientTimestamp": "1711366528",
+            "senderKeyHash": "6tTXhx6LpavJAg==",
+            "senderTimestamp": "1711449176"
+          },
+          "deviceListMetadataVersion": 2
+        }
+      },
+      "messageTimestamp": 1711493782,
+      "messageType": "conversation",
+      "owner": "PythonBrasil",
+      "pushName": "Chatbot",
+      "source": "android"
+    },
+    "date_time": "2024-03-26T22:56:22.238Z",
+    "destination": "http://18.231.24.248:8080/webhook",
+    "event": "messages.upsert",
+    "instance": "PythonBrasil",
+    "sender": "558587234490@s.whatsapp.net",
+    "server_url": "localhost"
+  }
+  
