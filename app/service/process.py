@@ -5,6 +5,7 @@ from app.database.manipulations import ia_manipulations, lead_manipulations
 from app.service.queue_manager import get_phone_lock
 from app.service.llm_response import IAresponse
 from app.service.break_messages import *
+from app.apis.evolution import *
 
 def process_webhook(data: dict):
     """
@@ -77,6 +78,9 @@ def process_webhook(data: dict):
                 delay = calculate_typing_delay(msg)    
                 print(f'Delay: {delay}s')
                 print(f'IA: {msg}')
+                response_canal = process_message(ia_name, lead_phone, msg, delay)
+                if response_canal.get("status_code") not in [200, 201]:
+                    raise(Exception(f"Erro ao enviar mensagem ao lead > {msg}"))
 
             #Criando uma lógica para a frase: OI TUdo bem ser considerada apenas uma interação
             resumo = None
@@ -113,29 +117,26 @@ def process_webhook(data: dict):
 
 
 def process_message(data: dict, instance: str, message_id: str, message_type: str, ia_infos: object) -> str :
-    
+    print(f'message_type: ', message_type)
+
     if message_type == "conversation":
         return data["data"]["message"]["conversation"]
-
+    
     elif message_type == "extendedTextMessage":
         return data["data"]["message"]["extendedTextMessage"]["text"]
-
+    
     elif message_type == "imageMessage":
         print("Imagem detectada!")
-        #return processar_imagem(instance, message_id, ia_infos)
-        return "mensagem de imagem"
-
+        return processar_imagem(instance, message_id, ia_infos)
+    
     elif message_type == "audioMessage":
         print("Áudio identificado!")
-        #return processar_audio(instance, message_id, ia_infos)
-        return "mensagem de audio"
-
+        return processar_audio(instance, message_id, ia_infos)
+    
     elif message_type == "documentWithCaptionMessage":
         print("Documento identificado!")
         type_file = data.get("data").get("message").get("documentWithCaptionMessage").get("message").get("documentMessage").get("mimetype").split("/")[1]
-        #return processar_documento(instance, message_id, type_file, ia_infos), type_file
-        return "mensagem de documento"
-
+        return processar_documento(instance, message_id, type_file, ia_infos), type_file
     else:
         print(f"Tipo de mensagem não identificada: {message_type} retornando...")
-        return
+        return "Mensagem não odentificada"

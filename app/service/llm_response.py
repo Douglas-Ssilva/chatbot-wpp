@@ -110,13 +110,13 @@ class IAresponse:
                         conversation.memory.chat_memory.add_ai_message(msg.get('content') or '')
 
             # Exibe no console o total de interações carregadas
-            print(f'TOtal de interações: {len(history_message)}')
+            #print(f'TOtal de interações: {len(history_message)}')
 
             # Executa a previsão da IA passando a nova mensagem do usuário
             response_ia = conversation.predict(input = message_lead)
 
             # Exibe no console a resposta gerada pela IA
-            print(f'IA response: {response_ia}')
+            #print(f'IA response: {response_ia}')
 
             # Retorna a resposta gerada
             return response_ia

@@ -120,6 +120,13 @@ def processar_audio(instance: str, message_id: str, ia_infos) -> str:
     
     return audio_transcript
 
+def processar_documento(instance, message_id, ia_infos) -> str:
+    print("Processando Docs")
+    print(instance)
+    print(message_id)
+    print(ia_infos)
+    return "Documento enviada"
+
 def send_message(instance: str, lead_phone: str, message: str, delay: int) -> dict:
     #body padrão da evolutuion
     url = host + 'message/sendText/' + instance
