@@ -78,7 +78,7 @@ def process_webhook(data: dict):
                 delay = calculate_typing_delay(msg)    
                 print(f'Delay: {delay}s')
                 print(f'IA: {msg}')
-                response_canal = process_message(ia_name, lead_phone, msg, delay)
+                response_canal = send_message(ia_name, lead_phone, msg, delay)
                 if response_canal.get("status_code") not in [200, 201]:
                     raise(Exception(f"Erro ao enviar mensagem ao lead > {msg}"))
 
