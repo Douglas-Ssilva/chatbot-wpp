@@ -129,7 +129,7 @@ def processar_documento(instance, message_id, ia_infos) -> str:
 
 def send_message(instance: str, lead_phone: str, message: str, delay: int) -> dict:
     #body padrão da evolutuion
-    url = host + 'message/sendText/' + instance
+    url = host + '/message/sendText/' + instance
     body = {
         'number' : lead_phone, 
         'options' : {
