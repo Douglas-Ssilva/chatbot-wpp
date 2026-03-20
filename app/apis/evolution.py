@@ -147,8 +147,8 @@ def send_message(instance: str, lead_phone: str, message: str, delay: int) -> di
 
 
 def post_request(url: str, body: dict, max_retries: int = 5, wait_seconds: int = 5) -> str:
-    attemp = 0
-    lead = body.get('number', 'undefined')
+    attempt = 0
+    lead = body["number"]
     response_post = { 'status_code' : None, 'response' : None }
 
     headers = {
@@ -156,20 +156,24 @@ def post_request(url: str, body: dict, max_retries: int = 5, wait_seconds: int =
         'Content-Type' : 'application/json'
     }
 
-    while attemp < max_retries:
-        attemp += 1
+    while attempt < max_retries:
+        attempt += 1
+        print(f"Tentativa {attempt} de {max_retries}")
         response = requests.post(url, json = body, headers = headers, timeout= 120)
 
         try:
             response_return = response.json()
         except Exception as ex:
+            print(f"Erro ao converter response em json, convertendo para texto:\n > {ex}")
             response_return = response.text
 
         if response.status_code in [200, 201]:
+            print(f"Mensagem enviada com sucesso pela EVOLUTION para o lead » {lead}")
             response_post = { 'status_code' : response.status_code, 'response' : response_return }
             return response_post
         
-        if attemp < max_retries:
+        if attempt < max_retries:
+            print(f"Aguardando {wait_seconds} segundos antes de tentar novamente...")
             time.sleep(wait_seconds)
 
     return response_post
