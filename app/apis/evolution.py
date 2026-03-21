@@ -130,16 +130,21 @@ def processar_documento(instance, message_id, ia_infos) -> str:
 def send_message(instance: str, lead_phone: str, message: str, delay: int) -> dict:
     #body padrão da evolutuion
     url = host + '/message/sendText/' + instance
+    # body = {
+    #     'number' : lead_phone, 
+    #     'options' : {
+    #         'delay' : int(delay) * 1000,
+    #         'presence': 'composing',
+    #         'linkPreview' : False
+    #     },
+    #     'textMessage' : {
+    #         'text' : str(message)
+    #     }
+    # }
+
     body = {
-        'number' : lead_phone, 
-        'options' : {
-            'delay' : int(delay) * 1000,
-            'presence': 'composing',
-            'linkPreview' : False
-        },
-        'textMessage' : {
-            'text' : str(message)
-        }
+        "number": "553192188258",
+        "text": "teste envio"
     }
 
     data = post_request(url, body)
@@ -160,7 +165,9 @@ def post_request(url: str, body: dict, max_retries: int = 5, wait_seconds: int =
         print(f"Tentativa {attempt} de {max_retries}")
         print(f"- url {url} \n- json {body} \n - headers {headers} ")
         response = requests.post(url, json = body, headers = headers, timeout= 120)
-        print(f"response: ", response)
+        print("STATUS:", response.status_code)
+        print("RESPONSE:", response.text)
+
         try:
             response_return = response.json()
         except Exception as ex:
