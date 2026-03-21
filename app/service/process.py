@@ -16,6 +16,7 @@ def process_webhook(data: dict):
         # infos basicas
         ia_phone = data['sender'].split('@')[0]
         ia_name = data['instance']
+        print(f'ia_phone: ', ia_phone)
 
         # pesquisa em banco de qual ia direcionar
         ia_infos = ia_manipulations.filter_ia(ia_phone)
@@ -37,6 +38,9 @@ def process_webhook(data: dict):
         # Extraindo as infos do lead
         lead_name = data['data']['pushName']
         lead_phone = data['data']['key']['remoteJid'].split('@')[0]
+        
+        print(f'lead_phone : ', lead_phone)
+        print(f'data : ', data)
 
         # não deixa processar mais de uma mensagem por vez
         lock = get_phone_lock(lead_phone)
