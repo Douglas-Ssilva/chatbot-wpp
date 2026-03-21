@@ -37,7 +37,7 @@ def process_webhook(data: dict):
 
         # Extraindo as infos do lead
         lead_name = data['data']['pushName']
-        lead_phone = data['data']['key']['remoteJid'].split('@')[0]
+        lead_phone = data['data']['key']['remoteJidAlt'].split('@')[0]
         
         print(f'lead_phone : ', lead_phone)
         print(f'data : ', data)
