@@ -1,5 +1,6 @@
 import os
 import time 
+import random 
 import openai
 import base64 
 import requests 
@@ -130,22 +131,17 @@ def processar_documento(instance, message_id, ia_infos) -> str:
 def send_message(instance: str, lead_phone: str, message: str, delay: int) -> dict:
     #body padrão da evolutuion
     url = host + '/message/sendText/' + instance
-    # body = {
-    #     'number' : lead_phone, 
-    #     'options' : {
-    #         'delay' : int(delay) * 1000,
-    #         'presence': 'composing',
-    #         'linkPreview' : False
-    #     },
-    #     'textMessage' : {
-    #         'text' : str(message)
-    #     }
-    # }
+    
+    delay_real = random.uniform(delay, delay + 2)
+    time.sleep(delay_real)
 
     body = {
-        "number": "553192188258",
-        "text": "teste envio"
+        'number' : lead_phone, 
+        'textMessage' : {
+            'text' : str(message)
+        }
     }
+
 
     data = post_request(url, body)
     return data
