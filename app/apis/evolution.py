@@ -137,11 +137,8 @@ def send_message(instance: str, lead_phone: str, message: str, delay: int) -> di
 
     body = {
         'number' : lead_phone, 
-        'textMessage' : {
-            'text' : str(message)
-        }
+        'text' : str(message)        
     }
-
 
     data = post_request(url, body)
     return data
