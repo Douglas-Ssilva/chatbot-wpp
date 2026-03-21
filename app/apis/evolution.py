@@ -157,10 +157,10 @@ def post_request(url: str, body: dict, max_retries: int = 5, wait_seconds: int =
     }
 
     while attempt < max_retries:
-        attempt += 1
         print(f"Tentativa {attempt} de {max_retries}")
+        print(f"- url {url} \n- json {body} \n - headers {headers} ")
         response = requests.post(url, json = body, headers = headers, timeout= 120)
-
+        print(f"response: ", response)
         try:
             response_return = response.json()
         except Exception as ex:
@@ -175,5 +175,6 @@ def post_request(url: str, body: dict, max_retries: int = 5, wait_seconds: int =
         if attempt < max_retries:
             print(f"Aguardando {wait_seconds} segundos antes de tentar novamente...")
             time.sleep(wait_seconds)
+            attempt += 1
 
     return response_post
