@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('EVOLUTION')
 
 #config credenciais
 host = os.getenv('HOST_API')

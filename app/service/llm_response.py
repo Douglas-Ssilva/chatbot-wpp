@@ -10,6 +10,9 @@ from langchain.chains.conversation.base import ConversationChain
 # Importa a classe para criação de templates de prompt
 from langchain.prompts import PromptTemplate
 
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)#mudar de -> ConversationChain para RunnableWithMessageHistory
+
 
 # Classe responsável por gerar respostas da IA
 class IAresponse:

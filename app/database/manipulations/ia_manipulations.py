@@ -1,5 +1,9 @@
 from ..models import *
 from ..connection import init_db
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('IA_MANIPULATION')
 
 def filter_ia(phone: str) -> IA:
     db = init_db()
@@ -11,7 +15,7 @@ def filter_ia(phone: str) -> IA:
         
         ia = db.query(IA).filter(IA.phone_number == phone).first()
         if not ia:
-            print(f'IA is not available with phone number: {phone}')   
+            logger.error('IA is not available with phone number: %s ', phone)   
             return None
 
         # Acessa os relacionamentos (Foreign Keys)
@@ -22,11 +26,11 @@ def filter_ia(phone: str) -> IA:
         ia.ia_config
         ia.active_prompt
 
-        print(f'IA is available with phone number: {phone}')   
+        logger.info('IA is available with phone number: %s', phone)   
         return ia
 
     except Exception as ex:
-        print(f'Error: {ex}')
+        logger.error('Error in IA_MANIPULATION: %s', ex)
     
     finally:
         if db:
