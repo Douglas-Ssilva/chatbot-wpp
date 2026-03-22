@@ -5,18 +5,23 @@ import openai
 import base64 
 import requests 
 
+import logging
+
 from pydub import AudioSegment
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 #config credenciais
 host = os.getenv('HOST_API')
 api_key = os.getenv('API_KEY')
 
 def processar_imagem(instance: str, message_id: str, ia_infos) -> str:
-    print('Processando imagem...')
+    logger.info('Processando imagem...')
     img_transcript = 'Imagem enviada: Não consegui transcrever essa imagem, fale ao usuário que sua internet está ruim e que não pode baixar a imagem.'
 
     try:
@@ -61,13 +66,13 @@ def processar_imagem(instance: str, message_id: str, ia_infos) -> str:
         
             response_json = response.json()
             img_transcript = response_json['choices'][0]['message']['content']
-            print(f'Imagem transcrita: {img_transcript}')
+            logger.info(f'Imagem transcrita: {img_transcript}')
 
     except Exception as ex:
-        print(f'Erro ao processar img: {ex}')
+        logger.error(f'Erro ao processar img: {ex}')
 
 def processar_audio(instance: str, message_id: str, ia_infos) -> str:
-    print('Processando áudio')
+    logger.info('Processando áudio')
     audio_transcript = 'Audio enviado: Não consegui transcrever esse áudio fale para o usuário que a internet está ruim e que é para enviar um texto.'
     timestamp = str(time.time())
     audio_path = f'audio_{timestamp}.ogg'#audios from wpp vem assim
@@ -108,7 +113,7 @@ def processar_audio(instance: str, message_id: str, ia_infos) -> str:
                 audio_transcript = f'Áudio enviado: {response.text}'
 
     except Exception as ex:
-         print(f'Erro ao processar audio: {ex}')
+         logger.error(f'Erro ao processar audio: {ex}')
 
     #deletar arquivo
     try:
@@ -122,10 +127,10 @@ def processar_audio(instance: str, message_id: str, ia_infos) -> str:
     return audio_transcript
 
 def processar_documento(instance, message_id, ia_infos) -> str:
-    print("Processando Docs")
-    print(instance)
-    print(message_id)
-    print(ia_infos)
+    logger.info("Processando Docs")
+    logger.info(instance)
+    logger.info(message_id)
+    logger.info(ia_infos)
     return "Documento enviada"
 
 def send_message(instance: str, lead_phone: str, message: str, delay: int) -> dict:
@@ -155,25 +160,24 @@ def post_request(url: str, body: dict, max_retries: int = 5, wait_seconds: int =
     }
 
     while attempt < max_retries:
-        print(f"Tentativa {attempt} de {max_retries}")
-        print(f"- url {url} \n- json {body} \n - headers {headers} ")
+        logger.debug(f"Tentativa {attempt} de {max_retries}")
         response = requests.post(url, json = body, headers = headers, timeout= 120)
-        print("STATUS:", response.status_code)
-        print("RESPONSE:", response.text)
+        logger.debug("STATUS:", response.status_code)
+        logger.debug("RESPONSE:", response.text)
 
         try:
             response_return = response.json()
         except Exception as ex:
-            print(f"Erro ao converter response em json, convertendo para texto:\n > {ex}")
+            logger.error(f"Erro ao converter response em json, convertendo para texto:\n > {ex}")
             response_return = response.text
 
         if response.status_code in [200, 201]:
-            print(f"Mensagem enviada com sucesso pela EVOLUTION para o lead » {lead}")
+            logger.error(f"Mensagem enviada com sucesso pela EVOLUTION para o lead » {lead}")
             response_post = { 'status_code' : response.status_code, 'response' : response_return }
             return response_post
         
         if attempt < max_retries:
-            print(f"Aguardando {wait_seconds} segundos antes de tentar novamente...")
+            logger.error(f"Aguardando {wait_seconds} segundos antes de tentar novamente...")
             time.sleep(wait_seconds)
             attempt += 1
 
