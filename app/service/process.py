@@ -1,11 +1,15 @@
 import random
 import time
+import logging
 
 from app.database.manipulations import ia_manipulations, lead_manipulations
 from app.service.queue_manager import get_phone_lock
 from app.service.llm_response import IAresponse
 from app.service.break_messages import *
 from app.apis.evolution import *
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def process_webhook(data: dict):
     """
@@ -16,7 +20,7 @@ def process_webhook(data: dict):
         # infos basicas
         ia_phone = data['sender'].split('@')[0]
         ia_name = data['instance']
-        print(f'ia_phone: ', ia_phone)
+        logger.debug(f'ia_phone: ', ia_phone)
 
         # pesquisa em banco de qual ia direcionar
         ia_infos = ia_manipulations.filter_ia(ia_phone)
@@ -39,8 +43,8 @@ def process_webhook(data: dict):
         lead_name = data['data']['pushName']
         lead_phone = data['data']['key']['remoteJidAlt'].split('@')[0]
         
-        print(f'lead_phone : ', lead_phone)
-        print(f'data : ', data)
+        logger.debug(f'lead_phone : ', lead_phone)
+        logger.debug(f'data : ', data)
 
         # não deixa processar mais de uma mensagem por vez
         lock = get_phone_lock(lead_phone)
@@ -67,8 +71,11 @@ def process_webhook(data: dict):
             if not system_prompt:
                 raise Exception('Nenhum prompt cadastrado ou ativo para a IA')
             
+            logger.info(f'history: ', history)
+
             llm = IAresponse(api_key, ia_model, system_prompt, resume_lead)
             response_lead = llm.generate_response(message_content, history)
+            logger.info(f'response_lead: ', response_lead)
             if not response_lead:
                 raise Exception('Nenhuma resposta gerada pela IA')
 
@@ -80,8 +87,8 @@ def process_webhook(data: dict):
             #Envio msg lead
             for msg in list_message_to_lead:
                 delay = calculate_typing_delay(msg)    
-                print(f'Delay: {delay}s')
-                print(f'IA: {msg}')
+                logger.debug(f'Delay: {delay}s')
+                logger.debug(f'IA: {msg}')
                 response_canal = send_message(ia_name, lead_phone, msg, delay)
                 if response_canal.get("status_code") not in [200, 201]:
                     raise(Exception(f"Erro ao enviar mensagem ao lead > {msg}"))
@@ -95,12 +102,12 @@ def process_webhook(data: dict):
                     total_interacoes +=1
                     ultimo_role = mensagem['role']
 
-            print(f'Total interações reais: {total_interacoes}')
+            logger.debug(f'Total interações reais: {total_interacoes}')
 
             #Verificando necessidade de criar resumo
             for n in range(20,26):
                 if total_interacoes % n == 0 :
-                    print(f'Interações bateu: {total_interacoes}, criando resumo')
+                    logger.info(f'Interações bateu: {total_interacoes}, criando resumo')
                     resumo = llm.generate_resume(history)
 
             #Update banco
@@ -113,7 +120,7 @@ def process_webhook(data: dict):
             if not lead_update:
                 raise Exception(f'Falhar ao atualizar o lead: {lead_db.id}')
             
-            print(f'Sucesso ao processar LEAD: {lead_db.name}')
+            logger.info(f'Sucesso ao processar LEAD: {lead_db.name}')
 
 
     except Exception as ex:
@@ -121,7 +128,7 @@ def process_webhook(data: dict):
 
 
 def process_message(data: dict, instance: str, message_id: str, message_type: str, ia_infos: object) -> str :
-    print(f'message_type: ', message_type)
+    logger.debug(f'message_type: ', message_type)
 
     if message_type == "conversation":
         return data["data"]["message"]["conversation"]
@@ -130,17 +137,17 @@ def process_message(data: dict, instance: str, message_id: str, message_type: st
         return data["data"]["message"]["extendedTextMessage"]["text"]
     
     elif message_type == "imageMessage":
-        print("Imagem detectada!")
+        logger.debug("Imagem detectada!")
         return processar_imagem(instance, message_id, ia_infos)
     
     elif message_type == "audioMessage":
-        print("Áudio identificado!")
+        logger.debug("Áudio identificado!")
         return processar_audio(instance, message_id, ia_infos)
     
     elif message_type == "documentWithCaptionMessage":
-        print("Documento identificado!")
+        logger.debug("Documento identificado!")
         type_file = data.get("data").get("message").get("documentWithCaptionMessage").get("message").get("documentMessage").get("mimetype").split("/")[1]
         return processar_documento(instance, message_id, type_file, ia_infos), type_file
     else:
-        print(f"Tipo de mensagem não identificada: {message_type} retornando...")
+        logger.info(f"Tipo de mensagem não identificada: {message_type} retornando...")
         return "Mensagem não odentificada"
