@@ -1,6 +1,7 @@
 import random
 import time
 import logging
+import json
 
 from app.database.manipulations import ia_manipulations, lead_manipulations
 from app.service.queue_manager import get_phone_lock
@@ -43,8 +44,8 @@ def process_webhook(data: dict):
         lead_name = data['data']['pushName']
         lead_phone = data['data']['key']['remoteJidAlt'].split('@')[0]
         
-        logger.debug(f'lead_phone : ', {lead_phone})
-        logger.debug(f'data : ', {data})
+        logger.debug(f'lead_phone : ', {lead_phone})        
+        logger.debug("data:\n%s", json.dumps(data, indent=2, ensure_ascii=False))
 
         # não deixa processar mais de uma mensagem por vez
         lock = get_phone_lock(lead_phone)
