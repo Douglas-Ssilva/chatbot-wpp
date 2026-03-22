@@ -162,8 +162,8 @@ def post_request(url: str, body: dict, max_retries: int = 5, wait_seconds: int =
     while attempt < max_retries:
         logger.debug(f"Tentativa {attempt} de {max_retries}")
         response = requests.post(url, json = body, headers = headers, timeout= 120)
-        logger.debug("STATUS:", response.status_code)
-        logger.debug("RESPONSE:", response.text)
+        logger.debug(f"STATUS:", {response.status_code})
+        logger.debug(f"RESPONSE:", {response.text})
 
         try:
             response_return = response.json()

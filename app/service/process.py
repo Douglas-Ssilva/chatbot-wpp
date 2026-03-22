@@ -20,7 +20,7 @@ def process_webhook(data: dict):
         # infos basicas
         ia_phone = data['sender'].split('@')[0]
         ia_name = data['instance']
-        logger.debug(f'ia_phone: ', ia_phone)
+        logger.debug(f'ia_phone: ', {ia_phone})
 
         # pesquisa em banco de qual ia direcionar
         ia_infos = ia_manipulations.filter_ia(ia_phone)
@@ -43,8 +43,8 @@ def process_webhook(data: dict):
         lead_name = data['data']['pushName']
         lead_phone = data['data']['key']['remoteJidAlt'].split('@')[0]
         
-        logger.debug(f'lead_phone : ', lead_phone)
-        logger.debug(f'data : ', data)
+        logger.debug(f'lead_phone : ', {lead_phone})
+        logger.debug(f'data : ', {data})
 
         # não deixa processar mais de uma mensagem por vez
         lock = get_phone_lock(lead_phone)
@@ -71,11 +71,11 @@ def process_webhook(data: dict):
             if not system_prompt:
                 raise Exception('Nenhum prompt cadastrado ou ativo para a IA')
             
-            logger.info(f'history: ', history)
+            logger.info(f'history: ', {history})
 
             llm = IAresponse(api_key, ia_model, system_prompt, resume_lead)
             response_lead = llm.generate_response(message_content, history)
-            logger.info(f'response_lead: ', response_lead)
+            logger.info(f'response_lead: ', {response_lead})
             if not response_lead:
                 raise Exception('Nenhuma resposta gerada pela IA')
 
@@ -128,7 +128,7 @@ def process_webhook(data: dict):
 
 
 def process_message(data: dict, instance: str, message_id: str, message_type: str, ia_infos: object) -> str :
-    logger.debug(f'message_type: ', message_type)
+    logger.debug(f'message_type: ', {message_type})
 
     if message_type == "conversation":
         return data["data"]["message"]["conversation"]
