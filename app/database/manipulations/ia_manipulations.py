@@ -1,9 +1,8 @@
 from ..models import *
 from ..connection import init_db
-import logging
+from app.utils.logger import setup_logger
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('IA_MANIPULATION')
+logger = setup_logger("IA_MANIPULATION")
 
 def filter_ia(phone: str) -> IA:
     db = init_db()

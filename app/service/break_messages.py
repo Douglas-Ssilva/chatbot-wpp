@@ -5,10 +5,9 @@ from collections import defaultdict
 from spacy.symbols import ORTH
 from spacy.language import Language
 
-import logging
+from app.utils.logger import setup_logger
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('BREAK_MESSAGE')
+logger = setup_logger("BREAK_MESSAGES")
 
 '''
 Arquivo dedicado a qualquer manipulação de string 

@@ -5,20 +5,17 @@ import openai
 import base64 
 import requests 
 
-import logging
+from app.utils.config import settings
+from app.utils.logger import setup_logger
 
 from pydub import AudioSegment
 
-from dotenv import load_dotenv
 
-load_dotenv()
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('EVOLUTION')
+logger = setup_logger("EVOLUTION")
 
 #config credenciais
-host = os.getenv('HOST_API')
-api_key = os.getenv('API_KEY')
+host = settings.HOST_API
+api_key = settings.API_KEY
 
 def processar_imagem(instance: str, message_id: str, ia_infos) -> str:
     logger.info('Processando imagem...')
@@ -66,10 +63,10 @@ def processar_imagem(instance: str, message_id: str, ia_infos) -> str:
         
             response_json = response.json()
             img_transcript = response_json['choices'][0]['message']['content']
-            logger.info(f'Imagem transcrita: {img_transcript}')
+            logger.info('Imagem transcrita: %s', img_transcript)
 
     except Exception as ex:
-        logger.error(f'Erro ao processar img: {ex}')
+        logger.error('Erro ao processar img: %s', ex)
 
 def processar_audio(instance: str, message_id: str, ia_infos) -> str:
     logger.info('Processando áudio')
@@ -113,7 +110,7 @@ def processar_audio(instance: str, message_id: str, ia_infos) -> str:
                 audio_transcript = f'Áudio enviado: {response.text}'
 
     except Exception as ex:
-         logger.error(f'Erro ao processar audio: {ex}')
+         logger.error('Erro ao processar audio: %s', ex)
 
     #deletar arquivo
     try:
@@ -136,9 +133,9 @@ def processar_documento(instance, message_id, ia_infos) -> str:
 def send_message(instance: str, lead_phone: str, message: str, delay: int) -> dict:
     #body padrão da evolutuion
     url = host + '/message/sendText/' + instance
-    
-    delay_real = random.uniform(delay, delay + 2)
-    time.sleep(delay_real)
+    #delay_real = random.uniform(delay, delay + 2)
+    logger.info('delay..: %s', delay)
+    time.sleep(delay)
 
     body = {
         'number' : lead_phone, 
@@ -160,24 +157,26 @@ def post_request(url: str, body: dict, max_retries: int = 5, wait_seconds: int =
     }
 
     while attempt < max_retries:
-        logger.debug(f"Tentativa {attempt} de {max_retries}")
+        logger.info("Tentativa %s de %s", attempt, max_retries)
+        start = time.time()
         response = requests.post(url, json = body, headers = headers, timeout= 120)
-        logger.debug(f"STATUS:", {response.status_code})
-        logger.debug(f"RESPONSE:", {response.text})
+        logger.info("Tempo da requisição: %.2fs", time.time() - start)
+        logger.debug("STATUS: %s", response.status_code)
+        logger.debug("RESPONSE: %s", response.text)
 
         try:
             response_return = response.json()
         except Exception as ex:
-            logger.error(f"Erro ao converter response em json, convertendo para texto:\n > {ex}")
+            logger.error("Erro ao converter response em json, convertendo para texto:\n > %s", ex)
             response_return = response.text
 
         if response.status_code in [200, 201]:
-            logger.error(f"Mensagem enviada com sucesso pela EVOLUTION para o lead » {lead}")
+            logger.info("Mensagem enviada com sucesso pela EVOLUTION para o lead » %s", lead)
             response_post = { 'status_code' : response.status_code, 'response' : response_return }
             return response_post
         
         if attempt < max_retries:
-            logger.error(f"Aguardando {wait_seconds} segundos antes de tentar novamente...")
+            logger.error("Aguardando %s segundos antes de tentar novamente...", wait_seconds)
             time.sleep(wait_seconds)
             attempt += 1
 

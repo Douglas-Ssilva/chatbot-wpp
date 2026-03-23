@@ -108,7 +108,7 @@ class IAresponse:
                         conversation.memory.chat_memory.add_user_message(msg.get('content') or '')
                     
                     # Se a mensagem for da IA (assistente)
-                    elif msg['role'] == 'assistent':
+                    elif msg['role'] == 'assistant':
                         # Adiciona resposta da IA na memória
                         conversation.memory.chat_memory.add_ai_message(msg.get('content') or '')
 

@@ -3,23 +3,15 @@ Projeto que teremos flexibilidade de usar várias IAs,
 cada uma atendendo um cliente específico
 """
 
-import os
-# Biblioteca padrão do Python usada aqui para acessar variáveis de ambiente.
-
-# Importa a função que carrega automaticamente as variáveis definidas no arquivo .env.
-from dotenv import load_dotenv
-
 # Biblioteca padrão usada para converter dicionários Python em JSON e vice-versa.
 import json
 
 # Importa a classe Fernet responsável por realizar criptografia simétrica (encrypt/decrypt).
 from cryptography.fernet import Fernet
-
-# Lê o arquivo .env e carrega as variáveis para que possam ser acessadas com os.getenv().
-load_dotenv()
+from app.utils.config import settings
 
 # Busca a variável de ambiente chamada FERNET_KEY. Se não existir no ambiente, retornará None.
-FERNET_KEY = os.getenv('FERNET_KEY')
+FERNET_KEY = settings.FERNET_KEY
 
 
 # Cria a instância de criptografia. .encode() transforma a string da chave em bytes, pois o Fernet trabalha com bytes.

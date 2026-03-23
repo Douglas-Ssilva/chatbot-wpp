@@ -1,10 +1,8 @@
 from ..models import *
 from ..connection import init_db
+from app.utils.logger import setup_logger
 
-import logging
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('EVOLUTION')
+logger = setup_logger("LEAD_MANIPULATION")
 
 def new_lead(ia_id:int, name:str, phone:str, message:list) -> Lead:
     db = init_db()

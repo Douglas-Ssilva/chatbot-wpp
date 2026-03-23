@@ -8,9 +8,9 @@ from app.service.queue_manager import get_phone_lock
 from app.service.llm_response import IAresponse
 from app.service.break_messages import *
 from app.apis.evolution import *
+from app.utils.logger import setup_logger
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('PROCESS')
+logger = setup_logger("PROCESS")
 
 def process_webhook(data: dict):
     """
@@ -69,15 +69,15 @@ def process_webhook(data: dict):
             resume_lead = lead_db.resume
             api_key = ia_infos.ia_config.credentials.get('api_key')
             ia_model = ia_infos.ia_config.credentials.get('ia_model')
-            system_prompt = ia_infos.active_prompt.prompt_text
+            system_prompt = format_system_prompt(ia_infos.active_prompt.prompt_text, lead_name)
 
             if not system_prompt:
                 raise Exception('Nenhum prompt cadastrado ou ativo para a IA')
             
-            logger.info('history: %s', history)
+            logger.debug('history: %s', history)
 
             llm = IAresponse(api_key, ia_model, system_prompt, resume_lead)
-            response_lead = llm.generate_response(message_content, history)
+            response_lead = llm.generate_response(message_content, estruturar_history(history, system_prompt))
             logger.info('response_lead: %s', response_lead)
             if not response_lead:
                 raise Exception('Nenhuma resposta gerada pela IA')
@@ -129,6 +129,20 @@ def process_webhook(data: dict):
     except Exception as ex:
         logger.error('Error in process: %s', ex)
 
+def format_system_prompt(system_prompt : str, lead_name  : str) :
+    return f"""
+    {system_prompt}
+
+    ### Contexto da Conversa
+    - O cliente se chama {lead_name}.    
+
+    ### Personalização
+    - Use o nome do cliente de forma natural, sem exagerar.
+    - Seja simpático e direto.
+    """
+
+def estruturar_history(history: str, system_prompt: str):
+    return history
 
 def process_message(data: dict, instance: str, message_id: str, message_type: str, ia_infos: object) -> str :
     logger.debug('message_type: %s', message_type)
