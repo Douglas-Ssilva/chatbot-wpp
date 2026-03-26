@@ -1,10 +1,14 @@
 # Importações do SQLAlchemy (ORM para trabalhar com banco de dados)
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Boolean
+from sqlalchemy import Column, Integer, Date, UniqueConstraint, String, DateTime, ForeignKey, JSON, Boolean
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
+from sqlalchemy import Enum as SqlEnum
+
 from app.service.crypto import decrypt_data
+
+from enum import Enum
 
 
 # Cria a classe base que será herdada por todos os modelos (tabelas)
@@ -123,5 +127,43 @@ class Lead(Base):
 
     # Relacionamento reverso
     ia = relationship("IA", back_populates="leads")
+    bookings = relationship("Booking", back_populates="lead")
 
 
+# ===========================
+# TABELA Disponibilidade datas
+# ===========================
+
+class BookingStatus(Enum):
+    RESERVADO = "Reservado"
+    PRE_RESERVADO = "Pré Reservado"
+    NAO_RESERVADO = "Livre"
+    CANCELADO = "Cancelado"
+
+class Origem(Enum):
+    ASSISTENT = "Assistent"
+    INEZ = "Inez"
+    GERALDO = "Geraldo"
+
+class Booking(Base):
+    __tablename__ = 'bookings'
+
+    id = Column(Integer, primary_key=True, index=True)
+    date = Column(Date, nullable=False)
+    lead_id = Column(Integer, ForeignKey('leads.id'), nullable=True)
+    status = Column(
+        SqlEnum(BookingStatus),
+        default=BookingStatus.NAO_RESERVADO,
+        nullable=False
+    )
+    origem_agendamento = Column(
+        SqlEnum(Origem),
+        default=Origem.ASSISTENT,
+        nullable=False
+    )
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    lead = relationship("Lead", back_populates="bookings")
+
+    __table_args__ = (
+        UniqueConstraint('date', name='unique_booking_date'),
+    )

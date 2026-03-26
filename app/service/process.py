@@ -69,7 +69,7 @@ def process_webhook(data: dict):
             resume_lead = lead_db.resume
             api_key = ia_infos.ia_config.credentials.get('api_key')
             ia_model = ia_infos.ia_config.credentials.get('ia_model')
-            system_prompt = format_system_prompt(ia_infos.active_prompt.prompt_text, lead_name)
+            system_prompt = format_system_prompt(ia_infos.active_prompt.prompt_text, lead_name, history)
 
             if not system_prompt:
                 raise Exception('Nenhum prompt cadastrado ou ativo para a IA')
@@ -129,17 +129,29 @@ def process_webhook(data: dict):
     except Exception as ex:
         logger.error('Error in process: %s', ex)
 
-def format_system_prompt(system_prompt : str, lead_name  : str) :
+def format_system_prompt(system_prompt: str, lead_name: str, history_message: list):
+    is_first_message = len(history_message) == 1
     return f"""
-    {system_prompt}
+        {system_prompt}
 
-    ### Contexto da Conversa
-    - O cliente se chama {lead_name}.    
+        ### Contexto da Conversa
+        - O cliente se chama {lead_name}.
+        - Primeira interação: {is_first_message}
 
-    ### Personalização
-    - Use o nome do cliente de forma natural, sem exagerar.
-    - Seja simpático e direto.
-    """
+        ### Regras de Comportamento (OBRIGATÓRIO)
+        - Se Primeira interação = True → você DEVE cumprimentar o cliente de forma natural.
+        - Se Primeira interação = False → NÃO cumprimente novamente.
+        - Nunca reinicie a conversa.
+        - Continue sempre com base na última mensagem do cliente.
+        - Responda como se fosse uma conversa no WhatsApp.
+        - Seja direto e evite repetir informações já dadas.
+        - Use o nome do cliente apenas quando fizer sentido, sem exagero.
+
+        ### Estilo de Resposta
+        - Respostas curtas e naturais.
+        - Tom humano e informal leve.
+        - Evite textos longos e explicações repetidas.
+        """
 
 def estruturar_history(history: str, system_prompt: str):
     return history

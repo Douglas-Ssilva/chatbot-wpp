@@ -20,14 +20,14 @@
       },
       "messageTimestamp": 1711493782,
       "messageType": "conversation",
-      "owner": "PythonBrasil",
+      "owner": "Teste",
       "pushName": "Douglas Silva",
       "source": "android"
     },
     "date_time": "2024-03-26T22:56:22.238Z",
     "destination": "http://18.231.24.248:8080/webhook",
     "event": "messages.upsert",
-    "instance": "PythonBrasil",
+    "instance": "Teste",
     "sender": "553195507753@s.whatsapp.net",
     "server_url": "localhost"
   }
